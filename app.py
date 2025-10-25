@@ -4,12 +4,12 @@ import os, csv, time
 app = Flask(__name__)
 
 CSV_PATH = "data.csv"
-API_TOKEN = "CAMBIA_ESTE_TOKEN"  # pon algo aleatorio
+API_TOKEN = "esp32-clima-12345"  # pon algo aleatorio
 
 # crea el CSV si no existe
 if not os.path.exists(CSV_PATH):
     with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, delimiter=';')
         writer.writerow(["ts_epoch","device","temp_c","hum_pct"])
 
 @app.get("/")
@@ -35,7 +35,7 @@ def ingest():
         return jsonify({"ok": False, "error": "bad fields"}), 400
 
     with open(CSV_PATH, "a", newline="", encoding="utf-8") as f:
-        csv.writer(f).writerow([ts, dev, t, h])
+        csv.writer(f, delimiter=';').writerow([ts, dev, t, h])
 
     return jsonify({"ok": True})
 
