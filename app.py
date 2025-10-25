@@ -5,7 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 CSV_PATH = "data.csv"
-API_TOKEN = os.getenv("API_TOKEN", "CAMBIA_ESTE_TOKEN")  # puedes ponerlo fijo si prefieres
+API_TOKEN = os.getenv("esp32-clima-12345")  # puedes ponerlo fijo si prefieres
 
 # --- crear CSV si no existe (con separador ;) y cabecera que Excel entiende ---
 def ensure_csv():
