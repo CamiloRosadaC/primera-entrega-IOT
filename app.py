@@ -5,9 +5,9 @@ from datetime import datetime
 app = Flask(__name__)
 
 CSV_PATH = "data.csv"
-API_TOKEN = "esp32-clima-12345"  # puedes ponerlo fijo si prefieres
+API_TOKEN = os.getenv("API_TOKEN", "esp32-clima-12345")  # igual que en el ESP32
 
-# --- crear CSV si no existe (con separador ;) y cabecera que Excel entiende ---
+# --- crear CSV si no existe ---
 def ensure_csv():
     if not os.path.exists(CSV_PATH):
         with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
@@ -18,12 +18,10 @@ ensure_csv()
 
 @app.get("/")
 def home():
-    # atajo a dashboard
     return redirect(url_for("dashboard"))
 
 @app.get("/dashboard")
 def dashboard():
-    # lee las últimas N filas (por defecto 20)
     try:
         n = int(request.args.get("n", 20))
     except ValueError:
@@ -33,9 +31,8 @@ def dashboard():
     header = []
     with open(CSV_PATH, newline="", encoding="utf-8") as f:
         reader = csv.reader(f, delimiter=';')
-        # salta línea "sep=;" si existe
         first = next(reader, None)
-        if first and first and first[0].lower().startswith("sep="):
+        if first and first[0].lower().startswith("sep="):
             header = next(reader, [])
         else:
             header = first or []
@@ -44,7 +41,6 @@ def dashboard():
 
     last_rows = rows[-n:] if n > 0 else rows
 
-    # helper: formatea ts_epoch
     def fmt_row(r):
         try:
             ts = int(float(r[0]))
@@ -58,7 +54,6 @@ def dashboard():
 
     table_rows = [fmt_row(r) for r in last_rows]
 
-    # HTML sencillo con auto-refresh y botón de descarga
     html = f"""
 <!doctype html>
 <html lang="es">
@@ -109,7 +104,7 @@ def dashboard():
     html += """
     </tbody>
   </table>
-  <p class="note">TIP: Cambia ?n=50 en la URL para ver más filas. Ej: /dashboard?n=50</p>
+  <p class="note">TIP: cambia ?n=50 en la URL para ver más filas (ej: /dashboard?n=50)</p>
 </body>
 </html>
 """
@@ -144,5 +139,5 @@ def data_csv():
     return send_file(CSV_PATH, as_attachment=True)
 
 if __name__ == "__main__":
-    # para correr localmente
     app.run(host="0.0.0.0", port=5000, debug=True)
+
