@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, send_file, Response, redirect, url_for
 import os, csv, time
 from datetime import datetime
+from zoneinfo import ZoneInfo   # ← zona horaria
+TZ = ZoneInfo("America/Bogota") # ← hora local (puedes cambiarla)
 
 app = Flask(__name__)
 
@@ -44,7 +46,8 @@ def dashboard():
     def fmt_row(r):
         try:
             ts = int(float(r[0]))
-            human = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+            # convierte el timestamp UTC a hora local (Colombia)
+            human = datetime.fromtimestamp(ts, TZ).strftime("%Y-%m-%d %H:%M:%S")
         except Exception:
             human = "—"
         device = r[1] if len(r) > 1 else "—"
@@ -81,7 +84,7 @@ def dashboard():
 </head>
 <body>
   <h1>Dashboard ESP32</h1>
-  <p class="muted">Lecturas de temperatura y humedad (actualiza cada 5 s)</p>
+  <p class="muted">Lecturas de temperatura y humedad (actualiza cada 5 s) — Zona: {TZ.key}</p>
 
   <div class="actions">
     <a class="btn" href="/data.csv" download>⬇️ Descargar CSV</a>
@@ -140,4 +143,5 @@ def data_csv():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
