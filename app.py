@@ -5,7 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 CSV_PATH = "data.csv"
-API_TOKEN = os.getenv("API_TOKEN", "esp32-clima-12345")  # igual que en el ESP32
+API_TOKEN = "esp32-clima-12345"  # igual que en el ESP32
 
 # --- crear CSV si no existe ---
 def ensure_csv():
